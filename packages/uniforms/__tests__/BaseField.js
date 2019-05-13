@@ -2,9 +2,9 @@ import React from 'react';
 import {mount} from 'enzyme';
 
 import BaseField from 'uniforms/BaseField';
-import createSchemaBridge from 'uniforms/createSchemaBridge';
 import nothing from 'uniforms/nothing';
 import randomIds from 'uniforms/randomIds';
+import {SimpleSchemaBridge} from 'uniforms-bridge-simple-schema';
 
 jest.mock('meteor/aldeed:simple-schema');
 jest.mock('meteor/check');
@@ -39,7 +39,8 @@ describe('BaseField', () => {
     placeholder: true,
     showInlineError: true
   };
-  const schema = createSchemaBridge({
+
+  const schema = new SimpleSchemaBridge({
     getDefinition(name) {
       // Simulate SimpleSchema.
       name = name.replace(/\d+/g, '$');
@@ -81,7 +82,7 @@ describe('BaseField', () => {
   });
 
   const _context = context => ({context: {uniforms: {...reactContextBase, ...context}}});
-  const reactContextBase = {error: error1, model, name: [], randomId, schema, state, onChange};
+  const reactContextBase = {error: error1, model, name: [], randomId, schema, state, onChange, onSubmit() {}};
   const reactContext1 = _context({});
   const reactContext2 = _context({error: error2});
   const reactContext3 = _context({error: {...error2}});

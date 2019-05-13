@@ -1,8 +1,5 @@
-import FormControl from '@material-ui/core/FormControl';
-import FormHelperText from '@material-ui/core/FormHelperText';
-import Input from '@material-ui/core/Input';
-import InputLabel from '@material-ui/core/InputLabel';
 import React from 'react';
+import TextField from '@material-ui/core/TextField';
 import connectField from 'uniforms/connectField';
 import filterDOMProps from 'uniforms/filterDOMProps';
 
@@ -18,49 +15,40 @@ const dateParse = (timestamp, onChange) => {
 };
 
 const Date = ({
+  InputLabelProps,
   disabled,
   error,
   errorMessage,
-  fullWidth,
   helperText,
   inputRef,
   label,
   labelProps,
-  margin,
   name,
   onChange,
   placeholder,
-  required,
   showInlineError,
   value,
   ...props
 }) => (
-  <FormControl disabled={!!disabled} error={!!error} fullWidth={!!fullWidth} margin={margin} required={required}>
-    {label && (
-      <InputLabel htmlFor={name} {...labelProps}>
-        {label}
-      </InputLabel>
-    )}
-    <Input
-      name={name}
-      onChange={event => dateParse(event.target.valueAsNumber, onChange)}
-      placeholder={placeholder}
-      ref={inputRef}
-      type="datetime-local"
-      value={dateFormat(value)}
-      {...filterDOMProps(props)}
-    />
-    {showInlineError && error ? (
-      <FormHelperText>{errorMessage}</FormHelperText>
-    ) : (
-      helperText && <FormHelperText>{helperText}</FormHelperText>
-    )}
-  </FormControl>
+  <TextField
+    disabled={!!disabled}
+    error={!!error}
+    helperText={(error && showInlineError && errorMessage) || helperText}
+    label={label}
+    InputLabelProps={{...labelProps, ...InputLabelProps}}
+    name={name}
+    onChange={event => disabled || dateParse(event.target.valueAsNumber, onChange)}
+    placeholder={placeholder}
+    ref={inputRef}
+    type="datetime-local"
+    value={dateFormat(value)}
+    {...filterDOMProps(props)}
+  />
 );
 
 Date.defaultProps = {
   fullWidth: true,
-  margin: 'normal'
+  margin: 'dense'
 };
 
 export default connectField(Date);

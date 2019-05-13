@@ -4,9 +4,24 @@ language: node_js
 node_js:
   - 8
   - 10
+  - 12
 
 script:
+  - npm run lint
   - npm run coverage -- --no-cache --runInBand
 
 after_success:
   - npm run coverage:report
+
+before_deploy:
+  - npm --prefix website run build
+
+deploy:
+  provider: pages
+  github_token: $GITHUB_TOKEN
+  skip_cleanup: true
+  local-dir: website/build
+  on:
+    all_branches: true
+    condition: $TRAVIS_BRANCH =~ ^master|v2$
+    node: 12

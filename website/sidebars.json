@@ -1,0 +1,28 @@
+{
+  "docs": {
+    "Getting Started": [
+      "installation",
+      "quick-start",
+      "overview",
+      "examples"
+    ],
+    "Bridges": [
+      "bridges-concept",
+      "bridges-graphql",
+      "bridges-json-schema",
+      "bridges-simple-schema",
+      "bridges-simple-schema-2"
+    ],
+    "Uncategorized": [
+      "uncategorized-context-data",
+      "uncategorized-fields",
+      "uncategorized-forms"
+    ],
+    "API Reference": [
+      "api-bridges",
+      "api-fields",
+      "api-forms",
+      "api-helpers"
+    ]
+  }
+}

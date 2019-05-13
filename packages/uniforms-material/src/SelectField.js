@@ -1,18 +1,17 @@
 import Checkbox from '@material-ui/core/Checkbox';
-import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormGroup from '@material-ui/core/FormGroup';
-import FormHelperText from '@material-ui/core/FormHelperText';
 import FormLabel from '@material-ui/core/FormLabel';
-import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import React from 'react';
-import SelectMaterial from '@material-ui/core/Select';
 import Switch from '@material-ui/core/Switch';
+import TextField from '@material-ui/core/TextField';
 import connectField from 'uniforms/connectField';
 import filterDOMProps from 'uniforms/filterDOMProps';
+
+import wrapField from './wrapField';
 
 const xor = (item, array) => {
   const index = array.indexOf(item);
@@ -24,6 +23,7 @@ const xor = (item, array) => {
 };
 
 const renderSelect = ({
+  InputLabelProps,
   allowedValues,
   disabled,
   error,
@@ -44,43 +44,46 @@ const renderSelect = ({
   showInlineError,
   transform,
   value,
+  variant,
   ...props
 }) => {
   const Item = native ? 'option' : MenuItem;
+  const hasPlaceholder = !!placeholder;
+  const hasValue = value !== '' && value !== undefined;
 
   return (
-    <FormControl disabled={!!disabled} error={!!error} fullWidth={!!fullWidth} margin={margin} required={required}>
-      {label && (
-        <InputLabel htmlFor={name} shrink={!!placeholder || !!value} {...labelProps}>
-          {label}
-        </InputLabel>
+    <TextField
+      disabled={!!disabled}
+      error={!!error}
+      fullWidth={fullWidth}
+      helperText={(error && showInlineError && errorMessage) || helperText}
+      InputLabelProps={{shrink: !!label && (hasPlaceholder || hasValue), ...labelProps, ...InputLabelProps}}
+      label={label}
+      margin={margin}
+      onChange={event => disabled || onChange(event.target.value)}
+      required={required}
+      select
+      SelectProps={{
+        displayEmpty: hasPlaceholder,
+        inputProps: {name, id, ...inputProps},
+        multiple: fieldType === Array || undefined,
+        native,
+        ...filterDOMProps(props)
+      }}
+      value={native && !value ? '' : value}
+      variant={variant}
+    >
+      {hasPlaceholder && (
+        <Item value="" disabled={!!required}>
+          {placeholder}
+        </Item>
       )}
-      <SelectMaterial
-        displayEmpty={!!placeholder}
-        inputProps={{name, id, ...inputProps}}
-        multiple={fieldType === Array || undefined}
-        native={native}
-        onChange={event => disabled || onChange(event.target.value)}
-        value={native && !value ? '' : value}
-        {...filterDOMProps(props)}
-      >
-        {!!placeholder && (
-          <Item value="" disabled={!!required}>
-            {placeholder}
-          </Item>
-        )}
-        {allowedValues.map(value => (
-          <Item key={value} value={value}>
-            {transform ? transform(value) : value}
-          </Item>
-        ))}
-      </SelectMaterial>
-      {showInlineError && error ? (
-        <FormHelperText>{errorMessage}</FormHelperText>
-      ) : (
-        helperText && <FormHelperText>{helperText}</FormHelperText>
-      )}
-    </FormControl>
+      {allowedValues.map(value => (
+        <Item key={value} value={value}>
+          {transform ? transform(value) : value}
+        </Item>
+      ))}
+    </TextField>
   );
 };
 
@@ -91,22 +94,19 @@ const renderCheckboxes = ({
   error,
   errorMessage,
   fieldType,
-  fullWidth,
-  helperText,
   id,
   inputRef,
   label,
   legend,
-  margin,
   name,
   onChange,
-  required,
   showInlineError,
   transform,
   value,
   ...props
 }) => {
   let children;
+  const filteredProps = wrapField._filterDOMProps(filterDOMProps(props));
 
   if (fieldType !== Array) {
     children = (
@@ -119,13 +119,12 @@ const renderCheckboxes = ({
       >
         {allowedValues.map(item => (
           <FormControlLabel
-            control={<Radio id={`${id}-${item}`} {...filterDOMProps(props)} />}
+            control={<Radio id={`${id}-${item}`} {...filteredProps} />}
             key={item}
             label={transform ? transform(item) : item}
             value={item}
           />
         ))}
-        {showInlineError && error && <FormHelperText>{errorMessage}</FormHelperText>}
       </RadioGroup>
     );
   } else {
@@ -143,7 +142,7 @@ const renderCheckboxes = ({
                 onChange={() => disabled || onChange(xor(item, value))}
                 ref={inputRef}
                 value={props.name}
-                {...filterDOMProps(props)}
+                {...filteredProps}
               />
             }
             key={item}
@@ -154,31 +153,19 @@ const renderCheckboxes = ({
     );
   }
 
-  return (
-    <FormControl
-      component="fieldset"
-      disabled={!!disabled}
-      error={!!error}
-      fullWidth={!!fullWidth}
-      margin={margin}
-      required={required}
-    >
-      {(legend || label) && <FormLabel component="legend">{legend || label}</FormLabel>}
-      {children}
-      {showInlineError && error ? (
-        <FormHelperText>{errorMessage}</FormHelperText>
-      ) : (
-        helperText && <FormHelperText>{helperText}</FormHelperText>
-      )}
-    </FormControl>
+  return wrapField(
+    {...props, component: 'fieldset', disabled, error, errorMessage, showInlineError},
+    (legend || label) && <FormLabel component="legend">{legend || label}</FormLabel>,
+    children
   );
 };
 
 const Select = ({checkboxes, ...props}) => (checkboxes ? renderCheckboxes(props) : renderSelect(props));
+
 Select.defaultProps = {
   appearance: 'checkbox',
   fullWidth: true,
-  margin: 'normal'
+  margin: 'dense'
 };
 
 export default connectField(Select);

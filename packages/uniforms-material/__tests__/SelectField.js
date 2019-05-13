@@ -3,12 +3,13 @@ import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import FormLabel from '@material-ui/core/FormLabel';
-import InputLabel from '@material-ui/core/InputLabel';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import React from 'react';
 import Select from '@material-ui/core/Select';
 import SelectField from 'uniforms-material/SelectField';
+import Switch from '@material-ui/core/Switch';
+import TextField from '@material-ui/core/TextField';
 import {mount} from 'enzyme';
 
 import createContext from './_createContext';
@@ -26,6 +27,14 @@ test('<SelectField> - renders a Select with correct disabled state', () => {
 
   expect(wrapper.find(Select)).toHaveLength(1);
   expect(wrapper.find(FormControl).prop('disabled')).toBe(true);
+});
+
+test('<SelectField> - renders a Select with correct required state', () => {
+  const element = <SelectField name="x" required />;
+  const wrapper = mount(element, createContext({x: {type: String, allowedValues: ['a', 'b']}}));
+
+  expect(wrapper.find(Select)).toHaveLength(1);
+  expect(wrapper.find(TextField).prop('required')).toBe(true);
 });
 
 test('<SelectField> - renders a Select with correct id (inherited)', () => {
@@ -150,7 +159,7 @@ test('<SelectField> - renders a Select which correctly reacts on change', () => 
 
   expect(wrapper.find(Select)).toHaveLength(1);
   wrapper
-    .find(Select)
+    .find(TextField)
     .props()
     .onChange({target: {value: 'b'}});
   expect(onChange).toHaveBeenLastCalledWith('x', 'b');
@@ -164,7 +173,7 @@ test('<SelectField> - renders a Select which correctly reacts on change (empty)'
 
   expect(wrapper.find(Select)).toHaveLength(1);
   wrapper
-    .find(Select)
+    .find(TextField)
     .props()
     .onChange({target: {value: ''}});
   expect(onChange).toHaveBeenLastCalledWith('x', '');
@@ -181,7 +190,7 @@ test('<SelectField> - renders a Select which correctly reacts on change (same va
 
   expect(wrapper.find(Select)).toHaveLength(1);
   wrapper
-    .find(Select)
+    .find(TextField)
     .props()
     .onChange({target: {value: 'b'}});
   expect(onChange).toHaveBeenLastCalledWith('x', 'b');
@@ -192,7 +201,23 @@ test('<SelectField> - renders a label', () => {
   const wrapper = mount(element, createContext({x: {type: String, allowedValues: ['a', 'b']}}));
 
   expect(wrapper.find(Select)).toHaveLength(1);
-  expect(wrapper.find(InputLabel).text()).toBe('y *');
+  expect(wrapper.find(TextField).prop('label')).toBe('y');
+});
+
+test('<SelectField> - renders a SelectField with correct error text (showInlineError=true)', () => {
+  const error = new Error();
+  const element = <SelectField name="x" error={error} showInlineError errorMessage="Error" />;
+  const wrapper = mount(element, createContext({x: {type: String, allowedValues: ['a', 'b']}}));
+
+  expect(wrapper.find(FormHelperText).text()).toBe('Error');
+});
+
+test('<SelectField> - renders a SelectField with correct error text (showInlineError=false)', () => {
+  const error = new Error();
+  const element = <SelectField name="x" error={error} showInlineError={false} errorMessage="Error" />;
+  const wrapper = mount(element, createContext({x: {type: String, allowedValues: ['a', 'b']}}));
+
+  expect(wrapper.find(FormHelperText)).toHaveLength(0);
 });
 
 test('<SelectField checkboxes> - renders a set of Radio buttons', () => {
@@ -494,18 +519,34 @@ test('<SelectField checkboxes> - renders a label', () => {
   expect(wrapper.find(FormLabel).text()).toBe('y *');
 });
 
-test('<SelectField> - renders a SelectField with correct error text (specified)', () => {
+test('<SelectField checkboxes> - renders a SelectField with correct error text (showInlineError=true)', () => {
   const error = new Error();
-  const element = <SelectField name="x" error={error} showInlineError errorMessage="Error" />;
+  const element = <SelectField checkboxes name="x" error={error} showInlineError errorMessage="Error" />;
   const wrapper = mount(element, createContext({x: {type: String, allowedValues: ['a', 'b']}}));
 
   expect(wrapper.find(FormHelperText).text()).toBe('Error');
 });
 
-test('<SelectField> - renders a SelectField with correct error text (showInlineError=false)', () => {
+test('<SelectField checkboxes> - renders a SelectField with correct error text (showInlineError=false)', () => {
   const error = new Error();
-  const element = <SelectField name="x" error={error} showInlineError={false} errorMessage="Error" />;
+  const element = <SelectField checkboxes name="x" error={error} showInlineError={false} errorMessage="Error" />;
   const wrapper = mount(element, createContext({x: {type: String, allowedValues: ['a', 'b']}}));
 
   expect(wrapper.find(FormHelperText)).toHaveLength(0);
+});
+
+test('<SelectField checkboxes> - renders Checkbox with appearance=checkbox', () => {
+  const element = <SelectField appearance="checkbox" checkboxes name="x" />;
+  const wrapper = mount(element, createContext({x: {type: Array}, 'x.$': {type: String, allowedValues: ['a', 'b']}}));
+
+  expect(wrapper.find(Checkbox)).toHaveLength(2);
+  expect(wrapper.find(Switch)).toHaveLength(0);
+});
+
+test('<SelectField checkboxes> - renders Switch with appearance=switch', () => {
+  const element = <SelectField appearance="switch" checkboxes name="x" />;
+  const wrapper = mount(element, createContext({x: {type: Array}, 'x.$': {type: String, allowedValues: ['a', 'b']}}));
+
+  expect(wrapper.find(Checkbox)).toHaveLength(0);
+  expect(wrapper.find(Switch)).toHaveLength(2);
 });

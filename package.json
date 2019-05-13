@@ -2,60 +2,74 @@
   "name": "uniforms-repository",
   "private": true,
   "scripts": {
-    "build": "lerna exec --ignore demo -- babel --config-file ../../.babelrc --out-dir . src",
+    "build": "lerna exec --ignore website -- babel --config-file ../../.babelrc --out-dir . src",
     "clean": "rimraf coverage packages/*/*.js",
     "coverage": "jest --coverage",
     "coverage:report": "codecov",
     "flow": "flow",
     "flow-typed": "flow-typed install",
     "install": "npm run build",
-    "lint": "eslint demo packages",
-    "lint:demo": "eslint demo",
-    "lint:packages": "eslint packages",
-    "postinstall": "lerna bootstrap",
+    "lint": "npm run lint:code && npm run lint:text",
+    "lint:code": "eslint packages website",
+    "lint:text": "prettier --check **/*.md{,x}",
+    "postinstall": "lerna bootstrap --hoist",
     "prereset": "npm run clean",
     "pretest": "npm run lint && npm run flow",
     "publish": "npm run clean && npm run build && lerna publish",
-    "reset": "rimraf node_modules demo/node_modules packages/*/node_modules",
+    "reset": "rimraf node_modules packages/*/node_modules website/node_modules",
     "test": "jest"
   },
   "dependencies": {
-    "@babel/cli": "7.2.0",
-    "@babel/core": "7.2.0",
-    "@babel/plugin-proposal-class-properties": "7.2.1",
-    "@babel/plugin-transform-runtime": "7.2.0",
-    "@babel/preset-env": "7.2.0",
-    "@babel/preset-flow": "7.0.0",
-    "@babel/preset-react": "7.0.0",
-    "@material-ui/core": "3.6.1",
-    "antd": "3.11.0",
+    "@babel/cli": "^7.0.0",
+    "@babel/core": "^7.0.0",
+    "@babel/plugin-proposal-class-properties": "^7.0.0",
+    "@babel/plugin-transform-runtime": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
+    "@babel/preset-flow": "^7.0.0",
+    "@babel/preset-react": "^7.0.0",
+    "@babel/runtime": "^7.0.0",
+    "@docusaurus/core": "2.0.0-alpha.13",
+    "@docusaurus/plugin-content-blog": "2.0.0-alpha.13",
+    "@docusaurus/plugin-content-docs": "2.0.0-alpha.13",
+    "@docusaurus/plugin-content-pages": "2.0.0-alpha.13",
+    "@material-ui/core": "3.9.2",
+    "@material-ui/icons": "3.0.1",
+    "ajv": "6.10.0",
+    "antd": "3.14.1",
     "babel-core": "7.0.0-bridge.0",
     "babel-eslint": "10.0.1",
-    "babel-jest": "23.6.0",
-    "babel-plugin-transform-react-remove-prop-types": "0.4.21",
-    "codecov": "3.1.0",
-    "enzyme": "3.7.0",
-    "enzyme-adapter-react-16": "1.7.0",
-    "eslint": "5.9.0",
-    "eslint-config-prettier": "3.3.0",
+    "babel-jest": "24.7.1",
+    "babel-plugin-transform-react-remove-prop-types": "0.4.24",
+    "classnames": "^2.0.0",
+    "codecov": "3.2.0",
+    "enzyme": "3.9.0",
+    "enzyme-adapter-react-16": "1.10.0",
+    "eslint": "5.15.1",
+    "eslint-config-prettier": "4.1.0",
     "eslint-config-vazco": "4.1.0",
     "eslint-plugin-babel": "5.3.0",
-    "eslint-plugin-prettier": "3.0.0",
-    "eslint-plugin-react": "7.11.1",
+    "eslint-plugin-prettier": "3.0.1",
+    "eslint-plugin-react": "7.12.4",
     "eslint-plugin-vazco": "1.0.0",
-    "flow-bin": "0.87.0",
+    "flow-bin": "0.94.0",
     "flow-typed": "2.5.1",
-    "graphql": "14.0.2",
-    "invariant": "2.2.4",
-    "jest": "23.6.0",
-    "lerna": "3.5.1",
-    "prettier": "1.15.3",
-    "react": "16.6.3",
-    "react-dom": "16.6.3",
-    "react-test-renderer": "16.6.3",
-    "rimraf": "2.6.2",
-    "simpl-schema": "1.5.3",
-    "warning": "4.0.2"
+    "graphql": "^14.0.0 || 0.8.0 - 14.0.0",
+    "husky": "2.1.0",
+    "invariant": "^2.0.0",
+    "jest": "24.1.0",
+    "lerna": "3.13.1",
+    "lint-staged": "8.1.5",
+    "lodash": "^4.0.0",
+    "lz-string": "1.4.4",
+    "prettier": "1.16.4",
+    "prop-types": "^15.5.7",
+    "react": "16.8.6",
+    "react-dom": "16.8.6",
+    "react-frame-component": "4.0.2",
+    "react-test-renderer": "16.8.6",
+    "rimraf": "2.6.3",
+    "simpl-schema": "^1.0.0 || ^0.0.4",
+    "warning": "^4.0.0"
   },
   "engines": {
     "npm": ">=5.0.0"
@@ -70,9 +84,10 @@
       "text-summary"
     ],
     "moduleNameMapper": {
-      "^uniforms([^/]*)(.*)$": "<rootDir>/packages/uniforms$1/src$2",
-      "meteor/([^:]*):(.*)": "<rootDir>/packages/uniforms/__mocks__/meteor/$1_$2.js",
-      "meteor/([^:]*)": "<rootDir>/packages/uniforms/__mocks__/meteor/$1.js"
+      "^meteor/([^:]*):(.*)$": "<rootDir>/packages/uniforms/__mocks__/meteor/$1_$2.js",
+      "^meteor/([^:]*)$": "<rootDir>/packages/uniforms/__mocks__/meteor/$1.js",
+      "^simpl-schema$": "<rootDir>/node_modules/simpl-schema",
+      "^uniforms([^/]*)(.*)$": "<rootDir>/packages/uniforms$1/src$2"
     },
     "setupFiles": [
       "./scripts/setupEnzyme.js",
@@ -84,5 +99,18 @@
     "transform": {
       "^.+\\.jsx?$": "./scripts/transform.js"
     }
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "**/*.js": [
+      "eslint"
+    ],
+    "**/*.md{,x}": [
+      "prettier --check"
+    ]
   }
 }

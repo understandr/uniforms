@@ -1,10 +1,8 @@
 {
   "name": "uniforms",
-  "version": "1.29.0",
+  "version": "2.0.0-alpha.0",
   "license": "MIT",
   "main": "index.js",
-  "module": "src/index.js",
-  "jsnext:main": "src/index.js",
   "description": "Core package of uniforms.",
   "repository": "https://github.com/vazco/uniforms/tree/master/packages/uniforms",
   "bugs": "https://github.com/vazco/uniforms/issues",
@@ -22,10 +20,8 @@
     "src/"
   ],
   "peerDependencies": {
-    "graphql": "^14.0.0 || 0.8.0 - 14.0.0",
     "react": "^16.0.0 || ^15.0.0 || ^0.14.0",
-    "react-dom": "^16.0.0 || ^15.0.0 || ^0.14.0",
-    "simpl-schema": "^1.0.0 || ^0.0.4"
+    "react-dom": "^16.0.0 || ^15.0.0 || ^0.14.0"
   },
   "dependencies": {
     "@babel/runtime": "^7.0.0",

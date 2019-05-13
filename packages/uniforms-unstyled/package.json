@@ -1,10 +1,8 @@
 {
   "name": "uniforms-unstyled",
-  "version": "1.29.0",
+  "version": "2.0.0-alpha.0",
   "license": "MIT",
   "main": "index.js",
-  "module": "src/index.js",
-  "jsnext:main": "src/index.js",
   "description": "Unstyled components for uniforms.",
   "repository": "https://github.com/vazco/uniforms/tree/master/packages/uniforms-unstyled",
   "bugs": "https://github.com/vazco/uniforms/issues",
@@ -22,13 +20,13 @@
     "src/"
   ],
   "peerDependencies": {
-    "react": "^16.0.0 || ^15.0.0 || ^0.14.0",
-    "uniforms": "^1.29.0"
+    "react": "^16.0.0 || ^15.0.0 || ^0.14.0"
   },
   "dependencies": {
     "@babel/runtime": "^7.0.0",
     "invariant": "^2.0.0",
     "lodash": "^4.0.0",
-    "prop-types": "^15.5.7"
+    "prop-types": "^15.5.7",
+    "uniforms": "^2.0.0-alpha.0"
   }
 }

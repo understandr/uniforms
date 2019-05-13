@@ -2,6 +2,7 @@ import React from 'react';
 import {mount} from 'enzyme';
 
 import ValidatedForm from 'uniforms/ValidatedForm';
+import {SimpleSchemaBridge} from 'uniforms-bridge-simple-schema';
 
 jest.mock('meteor/aldeed:simple-schema');
 jest.mock('meteor/check');
@@ -14,12 +15,13 @@ describe('ValidatedForm', () => {
 
   const error = new Error();
   const model = {a: 1};
-  const schema = {
+  const schemaDefinition = {
     getDefinition() {},
     messageForError() {},
     objectKeys() {},
     validator: () => validator
   };
+  const schema = new SimpleSchemaBridge(schemaDefinition);
 
   beforeEach(() => {
     onValidate.mockClear();
@@ -53,6 +55,7 @@ describe('ValidatedForm', () => {
       validator.mockImplementationOnce(() => {
         throw error;
       });
+
       form.validate().catch(() => {});
       await new Promise(resolve => process.nextTick(resolve));
 
@@ -69,7 +72,8 @@ describe('ValidatedForm', () => {
       validator.mockImplementation(() => {
         throw error;
       });
-      form.validate();
+
+      form.validate().catch(() => {});
 
       expect(onValidate).toHaveBeenCalledTimes(1);
       expect(onValidate).toHaveBeenLastCalledWith(model, error, expect.any(Function));
@@ -79,7 +83,8 @@ describe('ValidatedForm', () => {
       onValidate.mockImplementationOnce((model, existingError, next) => {
         next(error);
       });
-      form.validate();
+
+      form.validate().catch(() => {});
 
       expect(wrapper.instance().getChildContext()).toHaveProperty('uniforms.error', error);
     });
@@ -275,7 +280,7 @@ describe('ValidatedForm', () => {
       });
 
       it('revalidate if `schema` changes', () => {
-        wrapper.setProps({schema: {...schema}});
+        wrapper.setProps({schema: new SimpleSchemaBridge(schemaDefinition)});
         expect(validator).toHaveBeenCalledTimes(1);
       });
     });
@@ -297,7 +302,7 @@ describe('ValidatedForm', () => {
       });
 
       it('does not revalidate when `schema` changes', () => {
-        wrapper.setProps({schema: {...schema}});
+        wrapper.setProps({schema: new SimpleSchemaBridge(schemaDefinition)});
         expect(validator).not.toBeCalled();
       });
     });
@@ -308,22 +313,64 @@ describe('ValidatedForm', () => {
         wrapper = mount(<ValidatedForm model={model} schema={schema} />);
       });
 
-      it.skip('Reuses the validator between validations', () => {
-        // ...
+      it('reuses the validator between validations', () => {
+        const validator = jest.fn();
+
+        wrapper.setProps({
+          schema: new SimpleSchemaBridge({
+            getDefinition() {},
+            messageForError() {},
+            objectKeys() {},
+            validator
+          })
+        });
+
+        ['1', '2', '3'].forEach(value => {
+          wrapper
+            .instance()
+            .getChildContext()
+            .uniforms.onChange('key', value);
+          wrapper.find('form').simulate('submit');
+        });
+
+        expect(validator).toHaveBeenCalledTimes(1);
       });
 
-      it.skip('uses the new validator settings if `validator` changes', () => {
-        // ...
+      it('uses the new validator settings if `validator` changes', () => {
+        const validator = jest.fn();
+
+        wrapper.setProps({
+          schema: new SimpleSchemaBridge({
+            getDefinition() {},
+            messageForError() {},
+            objectKeys() {},
+            validator
+          })
+        });
+
+        const validatorA = Symbol();
+        const validatorB = Symbol();
+
+        wrapper.setProps({validator: validatorA});
+        wrapper.setProps({validator: validatorB});
+        wrapper.setProps({validator: validatorA});
+
+        expect(validator).toHaveBeenCalledTimes(4);
+        // First call is bridge implementation specific.
+        expect(validator).toHaveBeenNthCalledWith(2, validatorA);
+        expect(validator).toHaveBeenNthCalledWith(3, validatorB);
+        expect(validator).toHaveBeenNthCalledWith(4, validatorA);
       });
 
       it('uses the new validator if `schema` changes', () => {
         const alternativeValidator = jest.fn();
-        const alternativeSchema = {
+        const alternativeSchema = new SimpleSchemaBridge({
           getDefinition() {},
           messageForError() {},
           objectKeys() {},
           validator: () => alternativeValidator
-        };
+        });
+
         wrapper.setProps({schema: alternativeSchema});
         wrapper.find('form').simulate('submit');
 
